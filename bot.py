@@ -10,7 +10,7 @@ from telegram.ext import (
     filters,
 )
 
-from words import check_answer, get_random_word
+from words import check_answer, format_score, get_random_word
 
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
@@ -34,17 +34,28 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if correct is None:
         await update.message.reply_text("Сначала напиши /word.")
         return
+    context.user_data["total"] = context.user_data.get("total", 0) + 1
     if check_answer(update.message.text, correct):
+        context.user_data["correct"] = context.user_data.get("correct", 0) + 1
         await update.message.reply_text("Верно!")
     else:
         await update.message.reply_text(f"Неверно. Правильный ответ: {correct}")
     context.user_data.pop("answer")
 
 
+async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = format_score(
+        context.user_data.get("correct", 0),
+        context.user_data.get("total", 0),
+    )
+    await update.message.reply_text(text)
+
+
 def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("word", word))
+    app.add_handler(CommandHandler("score", score))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_answer))
     app.run_polling()
 

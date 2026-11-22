@@ -1,5 +1,4 @@
-from words import check_answer, get_random_word
-
+from words import check_answer, get_random_word, format_score
 from words import check_answer
 
 def test_correct_answer():
@@ -26,3 +25,9 @@ def test_random_word_with_single_entry():
 def test_russian_answer():
     assert check_answer("Кот ", "кот") is True
 
+def test_format_score_no_answers():
+    assert format_score(0, 0) == "Ты ещё не отвечал на слова."
+
+
+def test_format_score_percent():
+    assert format_score(3, 4) == "Правильных ответов: 3 из 4 (75%)"

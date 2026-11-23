@@ -32,3 +32,9 @@ def format_score(correct, total):
         return "Ты ещё не отвечал на слова."
     percent = round(correct / total * 100)
     return f"Правильных ответов: {correct} из {total} ({percent}%)"
+
+
+def get_hint(word):
+    if not word:
+        return ""
+    return word[0] + "_" * (len(word) - 1)

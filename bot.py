@@ -7,10 +7,10 @@ from telegram.ext import (
     CommandHandler,
     ContextTypes,
     MessageHandler,
-    filters
+    filters,
 )
 
-from words import check_answer, format_score, get_random_word
+from words import check_answer, format_score, get_hint, get_random_word
 
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
@@ -19,7 +19,8 @@ TOKEN = os.getenv("BOT_TOKEN")
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "Привет! Я помогаю учить французские слова.\n"
-        "Напиши /word, чтобы получить слово."
+        "Напиши /word, чтобы получить слово.\n"
+        "Команда /hint даёт подсказку, /score показывает результат."
     )
 
 
@@ -43,6 +44,14 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.pop("answer")
 
 
+async def hint(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    correct = context.user_data.get("answer")
+    if correct is None:
+        await update.message.reply_text("Сначала напиши /word.")
+        return
+    await update.message.reply_text(f"Подсказка: {get_hint(correct)}")
+
+
 async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = format_score(
         context.user_data.get("correct", 0),
@@ -55,6 +64,7 @@ def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("word", word))
+    app.add_handler(CommandHandler("hint", hint))
     app.add_handler(CommandHandler("score", score))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_answer))
     app.run_polling()

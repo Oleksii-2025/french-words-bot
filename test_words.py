@@ -1,3 +1,5 @@
+import pytest
+from words import check_answer, format_score, get_hint, get_random_word
 from words import check_answer, get_random_word, format_score
 from words import check_answer
 
@@ -31,3 +33,32 @@ def test_format_score_no_answers():
 
 def test_format_score_percent():
     assert format_score(3, 4) == "Правильных ответов: 3 из 4 (75%)"
+
+
+@pytest.mark.parametrize(
+    "user_answer, correct_answer, expected",
+    [
+        ("chat", "chat", True),
+        ("CHAT", "chat", True),
+        ("chien", "chat", False),
+        ("", "chat", False),
+        ("  chat  ", "chat", True),
+        ("Кот", "кот", True),
+        ("собака", "кот", False),
+    ],
+)
+def test_check_answer_cases(user_answer, correct_answer, expected):
+    assert check_answer(user_answer, correct_answer) is expected
+
+
+def test_get_hint_shows_first_letter():
+    assert get_hint("кот") == "к__"
+
+
+def test_get_hint_one_letter():
+    assert get_hint("я") == "я"
+
+
+def test_get_hint_empty_word():
+    assert get_hint("") == ""
+

@@ -7,7 +7,7 @@ from telegram.ext import (
     CommandHandler,
     ContextTypes,
     MessageHandler,
-    filters,
+    filters
 )
 
 from words import check_answer, format_score, get_random_word

@@ -1,23 +1,28 @@
 # french-words-bot
-![Bot screenshot](screenshot.png)
-A Telegram bot for learning French words, built with Python and tested with pytest.
 
-The bot sends a French word, you reply with the Russian translation, and it tells you if you are right. It keeps a score for each user.
+A Telegram bot for learning French words, written in Python and covered by pytest tests.
+
+The bot sends a word, you reply with the translation, and it tells you if you are right. Your score is saved in a SQLite database, so it is kept after a restart.
+
+![Bot screenshot](screenshot.png)
 
 ## Features
 
-- `/start` shows a greeting and instructions
-- `/word` sends a random French word
-- Reply with the translation to get "correct" or "wrong" feedback
+- `/start` shows a greeting and the list of commands
+- `/word` sends a French word, you translate it into Russian
+- `/back` sends a Russian word, you translate it into French
+- `/hint` shows the first letter of the answer
 - `/score` shows how many answers were correct
 - Answers are case-insensitive and ignore extra spaces
+- The score of each user is stored in SQLite
 
 ## Project structure
 
-- `words.py` is the word list and the main logic (checking answers, random word, score text)
+- `words.py` is the word list and the main logic (checking answers, random word, hint, score text)
+- `database.py` is the SQLite storage for scores
 - `bot.py` is the Telegram bot
 - `game.py` is a console version of the quiz
-- `test_words.py` and `test_game.py` are the pytest tests
+- `test_words.py`, `test_database.py`, `test_game.py` are the pytest tests
 
 ## How to run
 
@@ -40,12 +45,20 @@ BOT_TOKEN=your_token_here
 python bot.py
 ```
 
+The file `scores.db` is created automatically on the first start.
+
 ## Run the tests
 
 ```
 pytest
 ```
 
+The tests use a temporary database, so your real scores are never touched.
+
 ## What I practiced
 
-Python functions and dictionaries, writing unit tests with pytest (including `monkeypatch`), working with Git and GitHub, keeping secrets out of the repository with `.env` and `.gitignore`.
+- Python: functions, dictionaries, working with the Telegram Bot API
+- Testing with pytest: parametrized tests, fixtures, `monkeypatch`, writing a test before the code
+- SQLite: creating a table, parameterized queries (`?`) against SQL injection
+- Git and GitHub: commits, push, `.gitignore`
+- Keeping secrets out of the repository with `.env`

@@ -10,6 +10,7 @@ from telegram.ext import (
     filters,
 )
 
+from database import add_result, get_score, init_db
 from words import check_answer, format_score, get_hint, get_random_word
 
 load_dotenv()
@@ -42,9 +43,9 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if correct is None:
         await update.message.reply_text("Сначала напиши /word или /back.")
         return
-    context.user_data["total"] = context.user_data.get("total", 0) + 1
-    if check_answer(update.message.text, correct):
-        context.user_data["correct"] = context.user_data.get("correct", 0) + 1
+    is_correct = check_answer(update.message.text, correct)
+    add_result(update.effective_user.id, is_correct)
+    if is_correct:
         await update.message.reply_text("Верно!")
     else:
         await update.message.reply_text(f"Неверно. Правильный ответ: {correct}")
@@ -60,14 +61,12 @@ async def hint(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = format_score(
-        context.user_data.get("correct", 0),
-        context.user_data.get("total", 0),
-    )
-    await update.message.reply_text(text)
+    correct, total = get_score(update.effective_user.id)
+    await update.message.reply_text(format_score(correct, total))
 
 
 def main():
+    init_db()
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("word", word))

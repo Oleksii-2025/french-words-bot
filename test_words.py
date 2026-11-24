@@ -62,3 +62,12 @@ def test_get_hint_one_letter():
 def test_get_hint_empty_word():
     assert get_hint("") == ""
 
+
+def test_random_word_reverse_single_entry():
+    assert get_random_word({"eau": "вода"}, reverse=True) == ("вода", "eau")
+
+
+def test_random_word_reverse_from_dictionary():
+    words = {"chat": "кот", "chien": "собака"}
+    question, answer = get_random_word(words, reverse=True)
+    assert words[answer] == question

@@ -19,8 +19,9 @@ TOKEN = os.getenv("BOT_TOKEN")
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "Привет! Я помогаю учить французские слова.\n"
-        "Напиши /word, чтобы получить слово.\n"
-        "Команда /hint даёт подсказку, /score показывает результат."
+        "/word даёт французское слово, его нужно перевести на русский.\n"
+        "/back даёт русское слово, его нужно перевести на французский.\n"
+        "/hint даёт подсказку, /score показывает результат."
     )
 
 
@@ -30,10 +31,16 @@ async def word(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"Переведи слово: {french}")
 
 
+async def back(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    russian, french = get_random_word(reverse=True)
+    context.user_data["answer"] = french
+    await update.message.reply_text(f"Переведи на французский: {russian}")
+
+
 async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     correct = context.user_data.get("answer")
     if correct is None:
-        await update.message.reply_text("Сначала напиши /word.")
+        await update.message.reply_text("Сначала напиши /word или /back.")
         return
     context.user_data["total"] = context.user_data.get("total", 0) + 1
     if check_answer(update.message.text, correct):
@@ -47,7 +54,7 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def hint(update: Update, context: ContextTypes.DEFAULT_TYPE):
     correct = context.user_data.get("answer")
     if correct is None:
-        await update.message.reply_text("Сначала напиши /word.")
+        await update.message.reply_text("Сначала напиши /word или /back.")
         return
     await update.message.reply_text(f"Подсказка: {get_hint(correct)}")
 
@@ -64,6 +71,7 @@ def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("word", word))
+    app.add_handler(CommandHandler("back", back))
     app.add_handler(CommandHandler("hint", hint))
     app.add_handler(CommandHandler("score", score))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_answer))

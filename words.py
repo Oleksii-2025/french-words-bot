@@ -20,9 +20,12 @@ WORDS = {
 }
 
 
-def get_random_word(words=WORDS):
+def get_random_word(words=WORDS, reverse=False):
     french = random.choice(list(words))
-    return french, words[french]
+    russian = words[french]
+    if reverse:
+        return russian, french
+    return french, russian
 
 def check_answer(user_answer, correct_answer):
     return user_answer.strip().lower() == correct_answer.strip().lower()

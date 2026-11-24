@@ -10,7 +10,7 @@ from telegram.ext import (
     filters,
 )
 
-from database import add_result, get_score, init_db
+from database import add_result, get_score, init_db, reset_score
 from words import check_answer, format_score, get_hint, get_random_word
 
 load_dotenv()
@@ -22,7 +22,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Привет! Я помогаю учить французские слова.\n"
         "/word даёт французское слово, его нужно перевести на русский.\n"
         "/back даёт русское слово, его нужно перевести на французский.\n"
-        "/hint даёт подсказку, /score показывает результат."
+        "/hint даёт подсказку, /score показывает результат.\n"
+        "/reset обнуляет твой счёт."
     )
 
 
@@ -65,6 +66,14 @@ async def score(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(format_score(correct, total))
 
 
+async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    reset_score(update.effective_user.id)
+    context.user_data.pop("answer", None)
+    await update.message.reply_text(
+        "Счёт обнулён. Напиши /word или /back, чтобы начать заново."
+    )
+
+
 def main():
     init_db()
     app = Application.builder().token(TOKEN).build()
@@ -73,6 +82,7 @@ def main():
     app.add_handler(CommandHandler("back", back))
     app.add_handler(CommandHandler("hint", hint))
     app.add_handler(CommandHandler("score", score))
+    app.add_handler(CommandHandler("reset", reset))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_answer))
     app.run_polling()
 

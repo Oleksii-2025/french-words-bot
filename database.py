@@ -36,3 +36,9 @@ def get_score(user_id, db_path=DB_NAME):
             (user_id,),
         ).fetchone()
     return row if row else (0, 0)
+
+
+def reset_score(user_id, db_path=DB_NAME):
+    with closing(sqlite3.connect(db_path)) as conn:
+        with conn:
+            conn.execute("DELETE FROM scores WHERE user_id = ?", (user_id,))

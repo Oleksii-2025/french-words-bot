@@ -30,7 +30,7 @@ The bot sends a word, you reply with the translation, and it tells you if you ar
 1. Install dependencies:
 
 ```
-pip install python-telegram-bot python-dotenv pytest
+pip install -r requirements.txt
 ```
 
 2. Create a bot with @BotFather in Telegram and copy its token.
@@ -49,6 +49,14 @@ python bot.py
 The file `scores.db` is created automatically on the first start.
 
 ## Run the tests
+
+Install the development and testing tools (this also installs the bot dependencies):
+
+```
+pip install -r requirements-dev.txt
+```
+
+Then run:
 
 ```
 pytest

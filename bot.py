@@ -16,6 +16,10 @@ from words import check_answer, format_score, get_hint, get_random_word
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 
+# Only new messages: edited messages have update.message set to None,
+# and an edited answer should not be counted a second time.
+NEW_MESSAGES = filters.UpdateType.MESSAGE
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
@@ -75,15 +79,26 @@ async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def main():
+    if not TOKEN:
+        raise SystemExit(
+            "BOT_TOKEN is not set.\n"
+            "Create a file named .env next to bot.py with the line:\n"
+            "BOT_TOKEN=your_token_here\n"
+            "Get the token from @BotFather in Telegram."
+        )
     init_db()
     app = Application.builder().token(TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("word", word))
-    app.add_handler(CommandHandler("back", back))
-    app.add_handler(CommandHandler("hint", hint))
-    app.add_handler(CommandHandler("score", score))
-    app.add_handler(CommandHandler("reset", reset))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_answer))
+    app.add_handler(CommandHandler("start", start, filters=NEW_MESSAGES))
+    app.add_handler(CommandHandler("word", word, filters=NEW_MESSAGES))
+    app.add_handler(CommandHandler("back", back, filters=NEW_MESSAGES))
+    app.add_handler(CommandHandler("hint", hint, filters=NEW_MESSAGES))
+    app.add_handler(CommandHandler("score", score, filters=NEW_MESSAGES))
+    app.add_handler(CommandHandler("reset", reset, filters=NEW_MESSAGES))
+    app.add_handler(
+        MessageHandler(
+            NEW_MESSAGES & filters.TEXT & ~filters.COMMAND, handle_answer
+        )
+    )
     app.run_polling()
 
 
